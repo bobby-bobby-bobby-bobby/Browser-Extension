@@ -30,7 +30,7 @@ export class CanvasPerturbationRenderer {
     const height = this.cssHeight;
     if (width <= 0 || height <= 0) return;
     const config = frameConfig(settings, this.frame++, time);
-    this.ctx.clearRect(0, 0, width, height);
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.ctx.globalCompositeOperation = 'source-over';
 
     // Sparse, low-alpha bands disrupt frame averaging and low-bitrate edge recovery without obscuring text.
