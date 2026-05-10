@@ -28,6 +28,15 @@ OptiShield does **not** prevent screenshots, malware, spyware, browser compromis
 
 OptiShield collects no telemetry, fingerprints no users, sends no browsing data externally, loads no remote code, requires no accounts, and includes no analytics. Settings are stored only with `chrome.storage.local`.
 
+## Quick start (no build needed)
+
+This repository includes a prebuilt extension in `dist/`.
+
+1. Open `chrome://extensions`
+2. Enable **Developer mode**
+3. Click **Load unpacked**
+4. Select the repository's `dist/` folder
+
 ## Development
 
 ```bash
