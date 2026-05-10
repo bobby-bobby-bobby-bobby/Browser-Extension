@@ -4,6 +4,7 @@ import { WebGLPerturbationRenderer } from './webgl/webgl-renderer';
 import type { PerformanceStats, PerturbationSettings, RenderingMode } from '../types/settings';
 
 type Renderer = CanvasPerturbationRenderer | WebGLPerturbationRenderer;
+const STATS_PUBLISH_INTERVAL_MS = 333;
 
 export class OptiShieldOverlay {
   private canvas: HTMLCanvasElement;
@@ -36,7 +37,7 @@ export class OptiShieldOverlay {
       if (this.settings.enabled && this.manager.shouldRender()) {
         this.renderer.render(this.settings, now);
         this.stats = this.manager.sample(now, this.renderer.kind);
-        if (now - this.lastStatsPublishedAt >= 333) {
+        if (now - this.lastStatsPublishedAt >= STATS_PUBLISH_INTERVAL_MS) {
           this.lastStatsPublishedAt = now;
           this.onStats(this.stats);
         }
