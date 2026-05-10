@@ -16,15 +16,14 @@ export class SettingsStore {
   async set(next: Partial<PerturbationSettings>): Promise<PerturbationSettings> {
     const merged = { ...(await this.get()), ...next };
     await chrome.storage.local.set({ [KEY]: merged });
-    this.emit(merged);
     return merged;
   }
 
   subscribe(listener: Listener): () => void {
     this.listeners.add(listener);
     const storageListener = (changes: Record<string, chrome.storage.StorageChange>, area: string) => {
-      if (area === 'local' && changes[KEY]?.newValue) {
-        listener({ ...DEFAULT_SETTINGS, ...changes[KEY].newValue });
+      if (area === 'local' && KEY in changes) {
+        listener({ ...DEFAULT_SETTINGS, ...(changes[KEY].newValue ?? {}) });
       }
     };
     chrome.storage.onChanged.addListener(storageListener);
