@@ -2,10 +2,12 @@ import type { PerformanceStats, RenderingMode } from '../types/settings';
 import { DEFAULT_STATS } from '../storage/defaults';
 
 export class PerformanceManager {
+  private static cachedWebGl2Support: boolean | undefined;
   private samples: number[] = [];
   private last = performance.now();
   private droppedFrames = 0;
   private visibilityPaused = document.hidden;
+  private readonly hasWebGl2Support = PerformanceManager.getWebGl2Support();
   private readonly handleVisibilityChange = () => {
     this.visibilityPaused = document.hidden;
   };
@@ -38,9 +40,14 @@ export class PerformanceManager {
     };
   }
 
+  private static getWebGl2Support(): boolean {
+    if (PerformanceManager.cachedWebGl2Support !== undefined) return PerformanceManager.cachedWebGl2Support;
+    PerformanceManager.cachedWebGl2Support = Boolean(document.createElement('canvas').getContext('webgl2'));
+    return PerformanceManager.cachedWebGl2Support;
+  }
+
   private recommend(avgFrameMs: number): RenderingMode {
-    const hasWebGl = Boolean(document.createElement('canvas').getContext('webgl2'));
-    if (!hasWebGl) return 'canvas2d';
+    if (!this.hasWebGl2Support) return 'canvas2d';
     if (avgFrameMs > 28) return 'canvas2d';
     return 'webgl';
   }

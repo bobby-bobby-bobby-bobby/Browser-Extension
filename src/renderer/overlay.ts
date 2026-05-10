@@ -11,6 +11,7 @@ export class OptiShieldOverlay {
   private animationId = 0;
   private stats: PerformanceStats = PerformanceManager.defaultStats();
   private manager = new PerformanceManager();
+  private lastStatsPublishedAt = 0;
   private resizeObserver: ResizeObserver;
 
   constructor(private settings: PerturbationSettings, private onStats: (stats: PerformanceStats) => void) {
@@ -35,7 +36,10 @@ export class OptiShieldOverlay {
       if (this.settings.enabled && this.manager.shouldRender()) {
         this.renderer.render(this.settings, now);
         this.stats = this.manager.sample(now, this.renderer.kind);
-        this.onStats(this.stats);
+        if (now - this.lastStatsPublishedAt >= 333) {
+          this.lastStatsPublishedAt = now;
+          this.onStats(this.stats);
+        }
       }
       this.animationId = requestAnimationFrame(tick);
     };
@@ -56,6 +60,7 @@ export class OptiShieldOverlay {
   dispose(): void {
     cancelAnimationFrame(this.animationId);
     this.resizeObserver.disconnect();
+    this.manager.dispose();
     this.renderer.dispose();
     this.canvas.remove();
   }
