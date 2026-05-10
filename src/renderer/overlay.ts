@@ -13,7 +13,7 @@ export class OptiShieldOverlay {
   private animationId = 0;
   private stats: PerformanceStats = PerformanceManager.defaultStats();
   private manager = new PerformanceManager();
-  private lastStatsPublishedAt = -STATS_PUBLISH_INTERVAL_MS;
+  private lastStatsPublishedAt = -Infinity;
   private resizeObserver: ResizeObserver;
 
   constructor(private settings: PerturbationSettings, private onStats: (stats: PerformanceStats) => void) {
