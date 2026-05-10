@@ -4,7 +4,8 @@ import { WebGLPerturbationRenderer } from './webgl/webgl-renderer';
 import type { PerformanceStats, PerturbationSettings, RenderingMode } from '../types/settings';
 
 type Renderer = CanvasPerturbationRenderer | WebGLPerturbationRenderer;
-const STATS_PUBLISH_INTERVAL_MS = Math.floor(1000 / 3);
+const STATS_PUBLISH_HZ = 3;
+const STATS_PUBLISH_INTERVAL_MS = Math.floor(1000 / STATS_PUBLISH_HZ);
 
 export class OptiShieldOverlay {
   private canvas: HTMLCanvasElement;
@@ -12,7 +13,7 @@ export class OptiShieldOverlay {
   private animationId = 0;
   private stats: PerformanceStats = PerformanceManager.defaultStats();
   private manager = new PerformanceManager();
-  private lastStatsPublishedAt = 0;
+  private lastStatsPublishedAt = -STATS_PUBLISH_INTERVAL_MS;
   private resizeObserver: ResizeObserver;
 
   constructor(private settings: PerturbationSettings, private onStats: (stats: PerformanceStats) => void) {
