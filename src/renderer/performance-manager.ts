@@ -6,11 +6,16 @@ export class PerformanceManager {
   private last = performance.now();
   private droppedFrames = 0;
   private visibilityPaused = document.hidden;
+  private readonly handleVisibilityChange = () => {
+    this.visibilityPaused = document.hidden;
+  };
 
   constructor() {
-    document.addEventListener('visibilitychange', () => {
-      this.visibilityPaused = document.hidden;
-    });
+    document.addEventListener('visibilitychange', this.handleVisibilityChange);
+  }
+
+  dispose(): void {
+    document.removeEventListener('visibilitychange', this.handleVisibilityChange);
   }
 
   shouldRender(): boolean {
