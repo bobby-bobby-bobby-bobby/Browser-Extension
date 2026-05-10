@@ -5,6 +5,8 @@ export class CanvasPerturbationRenderer {
   readonly kind = 'canvas2d' as const;
   private ctx: CanvasRenderingContext2D;
   private frame = 0;
+  private cssWidth = 0;
+  private cssHeight = 0;
 
   constructor(private canvas: HTMLCanvasElement) {
     const context = canvas.getContext('2d', { alpha: true, desynchronized: true });
@@ -13,6 +15,8 @@ export class CanvasPerturbationRenderer {
   }
 
   resize(width: number, height: number): void {
+    this.cssWidth = width;
+    this.cssHeight = height;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     this.canvas.width = Math.floor(width * dpr);
     this.canvas.height = Math.floor(height * dpr);
@@ -22,7 +26,9 @@ export class CanvasPerturbationRenderer {
   }
 
   render(settings: PerturbationSettings, time: number): void {
-    const { width, height } = this.canvas.getBoundingClientRect();
+    const width = this.cssWidth;
+    const height = this.cssHeight;
+    if (width <= 0 || height <= 0) return;
     const config = frameConfig(settings, this.frame++, time);
     this.ctx.clearRect(0, 0, width, height);
     this.ctx.globalCompositeOperation = 'source-over';

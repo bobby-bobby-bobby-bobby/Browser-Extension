@@ -1,1 +1,1 @@
-chrome.runtime.onInstalled.addListener(()=>{chrome.runtime.openOptionsPage().catch(()=>void 0)});
+chrome.runtime.onInstalled.addListener(()=>{chrome.runtime.openOptionsPage().catch(()=>{})});
