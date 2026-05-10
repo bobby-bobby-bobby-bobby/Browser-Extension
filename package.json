@@ -1,0 +1,36 @@
+{
+  "name": "optishield",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Optical Privacy for the Modern Web - a privacy-first browser extension that reduces optical capture readability.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "latest",
+    "vite": "latest",
+    "typescript": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "lucide-react": "latest",
+    "tesseract.js": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "@typescript-eslint/eslint-plugin": "latest",
+    "@typescript-eslint/parser": "latest",
+    "@eslint/js": "latest",
+    "eslint-config-prettier": "latest",
+    "eslint-plugin-react-hooks": "latest",
+    "eslint": "latest",
+    "prettier": "latest"
+  }
+}
