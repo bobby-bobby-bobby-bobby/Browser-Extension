@@ -4,7 +4,7 @@ import { WebGLPerturbationRenderer } from './webgl/webgl-renderer';
 import type { PerformanceStats, PerturbationSettings, RenderingMode } from '../types/settings';
 
 type Renderer = CanvasPerturbationRenderer | WebGLPerturbationRenderer;
-const STATS_PUBLISH_INTERVAL_MS = 333;
+const STATS_PUBLISH_INTERVAL_MS = 1000 / 3;
 
 export class OptiShieldOverlay {
   private canvas: HTMLCanvasElement;
