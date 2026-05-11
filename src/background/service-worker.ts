@@ -10,7 +10,7 @@ chrome.runtime.onInstalled.addListener(() => {
 async function sendToActiveTab(message: OptiShieldMessage): Promise<{ ok: boolean; error?: string }> {
   try {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    if (tab?.id === undefined) return { ok: true };
+    if (tab?.id === undefined) return { ok: false, error: 'No active tab found' };
     await chrome.tabs.sendMessage(tab.id, message).catch(() => undefined);
     return { ok: true };
   } catch (error) {

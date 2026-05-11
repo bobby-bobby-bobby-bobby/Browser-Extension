@@ -60,7 +60,7 @@ function hash2(x: number, y: number): number {
 }
 
 function fract(value: number): number {
-  return value - Math.floor(value);
+  return ((value % 1) + 1) % 1;
 }
 
 export function valueNoise2D(x: number, y: number): number {
