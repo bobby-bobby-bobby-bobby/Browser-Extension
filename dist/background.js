@@ -1,4 +1,4 @@
-const DEFAULT_STATS={fps:60,frameMs:16.7,droppedFrames:0,recommendedMode:'canvas2d',renderer:'canvas2d',qualityScale:1,perturbationStrength:50,ocrResistance:54};
+const DEFAULT_STATS={fps:60,frameMs:16.7,droppedFrames:0,recommendedMode:'canvas2d',renderer:'auto',qualityScale:1,perturbationStrength:50,ocrResistance:54};
 let latestStats=DEFAULT_STATS;
 async function sendToActiveTab(message){const [tab]=await chrome.tabs.query({active:true,currentWindow:true});if(tab?.id!==undefined)await chrome.tabs.sendMessage(tab.id,message).catch(()=>{});}
 chrome.runtime.onInstalled.addListener(()=>{});

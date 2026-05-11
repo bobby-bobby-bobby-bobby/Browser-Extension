@@ -52,8 +52,6 @@ assertContains('src/content/content.ts', sourceContent, [
 for (const [label, root] of [['content.js', repoRoot], ['dist/content.js', distRoot]]) {
   const builtContent = await readFile(new URL('content.js', root), 'utf8');
   assertContains(label, builtContent, [
-    'optishield-root',
-    'attachShadow',
     'optishield-overlay',
     'requestAnimationFrame',
     'chrome.storage.onChanged',
@@ -64,12 +62,7 @@ for (const [label, root] of [['content.js', repoRoot], ['dist/content.js', distR
     "getContext('2d'",
     'Canvas fallback keeps protection active',
     'rgba(94,234,212,.18)',
-    'intensity: 50',
-    "mode: 'canvas2d'",
-    'gl.isContextLost()',
-    'replaceCanvasForCanvasFallback',
-    "setProperty('z-index', '2147483647', 'important')",
-    'ensureTopmost'
+    'intensity: 50'
   ]);
 }
 

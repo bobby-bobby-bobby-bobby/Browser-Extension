@@ -4,7 +4,7 @@
   const STORAGE_KEY = 'optishield.settings';
   const DEFAULT_SETTINGS = {
     enabled: true,
-    mode: 'canvas2d',
+    mode: 'auto',
     intensity: 50,
     jitter: 40,
     edgeInstability: 38,
@@ -117,7 +117,7 @@
       this.frame = 0;
       this.cssWidth = 0;
       this.cssHeight = 0;
-      this.ctx = canvas.getContext('2d', { alpha: true, desynchronized: true }) || canvas.getContext('2d', { alpha: true });
+      this.ctx = canvas.getContext('2d', { alpha: true, desynchronized: true });
       if (!this.ctx) throw new Error('Canvas 2D is unavailable');
     }
 
@@ -127,8 +127,8 @@
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       this.canvas.width = Math.max(1, Math.floor(width * dpr));
       this.canvas.height = Math.max(1, Math.floor(height * dpr));
-      this.canvas.style.setProperty('width', `${width}px`, 'important');
-      this.canvas.style.setProperty('height', `${height}px`, 'important');
+      this.canvas.style.width = `${width}px`;
+      this.canvas.style.height = `${height}px`;
       this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
 
@@ -193,8 +193,8 @@
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       this.canvas.width = Math.max(1, Math.floor(width * dpr));
       this.canvas.height = Math.max(1, Math.floor(height * dpr));
-      this.canvas.style.setProperty('width', `${width}px`, 'important');
-      this.canvas.style.setProperty('height', `${height}px`, 'important');
+      this.canvas.style.width = `${width}px`;
+      this.canvas.style.height = `${height}px`;
       this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
     }
 
@@ -204,9 +204,8 @@
       gl.clear(gl.COLOR_BUFFER_BIT);
       gl.enable(gl.BLEND);
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-      if (gl.isContextLost()) return;
       gl.useProgram(this.program);
-      if (this.vao) gl.bindVertexArray(this.vao);
+      gl.bindVertexArray(this.vao);
       gl.uniform2f(this.uniforms.uResolution, this.canvas.width, this.canvas.height);
       gl.uniform1f(this.uniforms.uTime, time);
       gl.uniform1f(this.uniforms.uIntensity, (settings.lowEyeStrain ? settings.intensity * 0.7 : settings.intensity) * 0.01);
@@ -216,11 +215,11 @@
       gl.uniform1f(this.uniforms.uQuality, qualityScale);
       gl.uniform4f(this.uniforms.uModes, settings.adaptiveTemporalPhaseShifting ? 1 : 0, settings.subpixelChromaDrift ? 1 : 0, settings.edgeReconstructionPoisoning ? 1 : 0, settings.compressionInterferencePatterns ? 1 : 0);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
-      if (this.vao) gl.bindVertexArray(null);
+      gl.bindVertexArray(null);
     }
 
     dispose() {
-      if (this.vao) this.gl.deleteVertexArray(this.vao);
+      this.gl.deleteVertexArray(this.vao);
       this.gl.deleteProgram(this.program);
     }
 
@@ -294,18 +293,15 @@ void main(){
       this.frame = 0;
       this.animationId = 0;
       this.lastStatsPublishedAt = -Infinity;
-      this.stats = { fps: 60, frameMs: 16.7, droppedFrames: 0, recommendedMode: 'canvas2d', renderer: 'canvas2d', qualityScale: 1, perturbationStrength: settings.intensity, ocrResistance: 54 };
+      this.stats = { fps: 60, frameMs: 16.7, droppedFrames: 0, recommendedMode: 'canvas2d', renderer: 'auto', qualityScale: 1, perturbationStrength: settings.intensity, ocrResistance: 54 };
       this.manager = new PerformanceManager();
-      this.root = document.createElement('optishield-root');
-      this.root.id = 'optishield-root';
-      this.shadow = this.root.attachShadow({ mode: 'open' });
       this.canvas = document.createElement('canvas');
       this.canvas.id = 'optishield-overlay';
+      Object.assign(this.canvas.style, { position: 'fixed', inset: '0', pointerEvents: 'none', zIndex: '2147483647', mixBlendMode: settings.highContrastCompatible ? 'normal' : 'overlay', opacity: '1', boxShadow: 'inset 0 0 0 1px rgba(94,234,212,.18)' });
       this.debugPanel = document.createElement('div');
       this.debugPanel.id = 'optishield-debug-panel';
-      this.shadow.append(this.canvas, this.debugPanel);
-      this.applyTopOverlayStyles();
-      document.documentElement.append(this.root);
+      Object.assign(this.debugPanel.style, { position: 'fixed', right: '12px', bottom: '12px', zIndex: '2147483647', padding: '8px 10px', borderRadius: '10px', background: 'rgba(2,6,23,.82)', color: '#dbeafe', font: '12px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace', pointerEvents: 'none', boxShadow: '0 8px 28px rgba(0,0,0,.28)' });
+      document.documentElement.append(this.canvas, this.debugPanel);
       this.renderer = this.createRenderer(settings.mode);
       this.resizeObserver = new ResizeObserver(() => this.resize());
       this.resizeObserver.observe(document.documentElement);
@@ -316,7 +312,6 @@ void main(){
     start() {
       const tick = (now) => {
         this.frame += 1;
-        if (this.frame % 30 === 0) this.ensureTopmost();
         if (this.settings.enabled && this.manager.shouldRender(this.frame)) {
           this.renderer.render(this.settings, now, this.manager.qualityScale);
           this.stats = this.manager.sample(now, this.renderer.kind, this.settings);
@@ -334,7 +329,7 @@ void main(){
     update(settings) {
       const previousMode = this.settings.mode;
       this.settings = settings;
-      this.applyTopOverlayStyles();
+      this.canvas.style.mixBlendMode = settings.highContrastCompatible ? 'normal' : 'overlay';
       if (previousMode !== settings.mode || (settings.mode === 'auto' && this.stats.recommendedMode !== this.renderer.kind)) {
         this.renderer.dispose();
         this.renderer = this.createRenderer(settings.mode === 'auto' ? this.stats.recommendedMode : settings.mode);
@@ -348,62 +343,8 @@ void main(){
       this.resizeObserver.disconnect();
       this.manager.dispose();
       this.renderer.dispose();
-      this.root.remove();
-    }
-
-    applyTopOverlayStyles() {
-      const rootStyle = this.root.style;
-      rootStyle.setProperty('all', 'initial', 'important');
-      rootStyle.setProperty('position', 'fixed', 'important');
-      rootStyle.setProperty('inset', '0', 'important');
-      rootStyle.setProperty('width', '100vw', 'important');
-      rootStyle.setProperty('height', '100vh', 'important');
-      rootStyle.setProperty('pointer-events', 'none', 'important');
-      rootStyle.setProperty('z-index', '2147483647', 'important');
-      rootStyle.setProperty('display', 'block', 'important');
-      rootStyle.setProperty('visibility', 'visible', 'important');
-      rootStyle.setProperty('opacity', '1', 'important');
-      rootStyle.setProperty('contain', 'strict', 'important');
-      rootStyle.setProperty('isolation', 'isolate', 'important');
-
-      const canvasStyle = this.canvas.style;
-      canvasStyle.setProperty('all', 'initial', 'important');
-      canvasStyle.setProperty('position', 'fixed', 'important');
-      canvasStyle.setProperty('inset', '0', 'important');
-      canvasStyle.setProperty('width', '100vw', 'important');
-      canvasStyle.setProperty('height', '100vh', 'important');
-      canvasStyle.setProperty('pointer-events', 'none', 'important');
-      canvasStyle.setProperty('z-index', '2147483647', 'important');
-      canvasStyle.setProperty('display', 'block', 'important');
-      canvasStyle.setProperty('visibility', 'visible', 'important');
-      canvasStyle.setProperty('opacity', '1', 'important');
-      canvasStyle.setProperty('mix-blend-mode', this.settings.highContrastCompatible ? 'normal' : 'overlay', 'important');
-      canvasStyle.setProperty('box-shadow', 'inset 0 0 0 1px rgba(94,234,212,.18)', 'important');
-      canvasStyle.setProperty('contain', 'strict', 'important');
-    }
-
-    applyDebugPanelStyles() {
-      const style = this.debugPanel.style;
-      style.setProperty('all', 'initial', 'important');
-      style.setProperty('position', 'fixed', 'important');
-      style.setProperty('right', '12px', 'important');
-      style.setProperty('bottom', '12px', 'important');
-      style.setProperty('z-index', '2147483647', 'important');
-      style.setProperty('padding', '8px 10px', 'important');
-      style.setProperty('border-radius', '10px', 'important');
-      style.setProperty('background', 'rgba(2,6,23,.82)', 'important');
-      style.setProperty('color', '#dbeafe', 'important');
-      style.setProperty('font', '12px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace', 'important');
-      style.setProperty('pointer-events', 'none', 'important');
-      style.setProperty('box-shadow', '0 8px 28px rgba(0,0,0,.28)', 'important');
-    }
-
-    ensureTopmost() {
-      if (this.root.parentElement !== document.documentElement) {
-        document.documentElement.append(this.root);
-      } else if (document.documentElement.lastElementChild !== this.root) {
-        document.documentElement.append(this.root);
-      }
+      this.canvas.remove();
+      this.debugPanel.remove();
     }
 
     resize() {
@@ -411,7 +352,6 @@ void main(){
     }
 
     syncDebugPanel() {
-      this.applyDebugPanelStyles();
       this.debugPanel.hidden = !this.settings.debugPanel;
       if (!this.debugPanel.hidden) {
         this.debugPanel.textContent = `OptiShield | ${this.stats.renderer} | ${this.stats.fps} FPS | ${this.stats.frameMs} ms | quality ${Math.round(this.stats.qualityScale * 100)}% | strength ${this.stats.perturbationStrength}% | OCR resistance ${this.stats.ocrResistance}%`;
@@ -419,24 +359,14 @@ void main(){
     }
 
     createRenderer(mode) {
-      if (mode === 'webgl') {
+      if (mode !== 'canvas2d') {
         try {
           return new WebGLPerturbationRenderer(this.canvas);
         } catch (_error) {
-          this.replaceCanvasForCanvasFallback();
           // Canvas fallback keeps protection active on Chromebooks, low-end devices, or disabled WebGL.
         }
       }
       return new CanvasPerturbationRenderer(this.canvas);
-    }
-
-    replaceCanvasForCanvasFallback() {
-      const replacement = document.createElement('canvas');
-      replacement.id = this.canvas.id;
-      this.canvas.replaceWith(replacement);
-      this.canvas = replacement;
-      this.shadow.prepend(this.canvas);
-      this.applyTopOverlayStyles();
     }
   }
 
@@ -482,7 +412,7 @@ void main(){
   });
 
   observer = new MutationObserver(() => {
-    if (overlay && !document.getElementById('optishield-root')) {
+    if (overlay && !document.getElementById('optishield-overlay')) {
       overlay.dispose();
       overlay = undefined;
       getSettings().then(apply).catch(() => undefined);
