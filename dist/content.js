@@ -5,11 +5,11 @@
   const DEFAULT_SETTINGS = {
     enabled: true,
     mode: 'auto',
-    intensity: 32,
-    jitter: 26,
-    edgeInstability: 22,
-    ocrDisruption: 20,
-    frequencyDisruption: 18,
+    intensity: 50,
+    jitter: 40,
+    edgeInstability: 38,
+    ocrDisruption: 34,
+    frequencyDisruption: 32,
     adaptiveTemporalPhaseShifting: true,
     subpixelChromaDrift: true,
     edgeReconstructionPoisoning: true,
@@ -43,11 +43,11 @@
     const base = (settings.intensity / 100) * eyeStrainScale * qualityScale;
     const temporalPhase = settings.adaptiveTemporalPhaseShifting ? Math.sin(frame * 0.73 + time * 0.0021) : 0;
     return {
-      alpha: Math.min(0.18, base * 0.22),
+      alpha: Math.min(0.16, 0.035 + base * 0.24),
       jitterPx: base * (settings.jitter / 100) * 0.9 * motionScale * dyslexiaScale,
       edgePx: base * (settings.edgeInstability / 100) * 1.2 * motionScale,
-      chromaPx: settings.subpixelChromaDrift ? base * 0.55 * (1 + temporalPhase * 0.18) : 0,
-      frequencyAlpha: settings.compressionInterferencePatterns ? base * (settings.frequencyDisruption / 100) * 0.16 : 0,
+      chromaPx: settings.subpixelChromaDrift ? 0.35 + base * 0.95 * (1 + temporalPhase * 0.18) : 0,
+      frequencyAlpha: settings.compressionInterferencePatterns ? Math.min(0.10, 0.012 + base * (settings.frequencyDisruption / 100) * 0.22) : 0,
       temporalSeed: Math.sin(frame * 12.9898 + time * 0.001) * 43758.5453,
       temporalPhase
     };
@@ -281,8 +281,8 @@ void main(){
   float edgeX = uModes.z * lineMask(gl_FragCoord.x + sin(t + uv.y * 9.0) * uEdge * 3.0, 72.0 - uEdge * 34.0, 1.3);
   float edgeY = uModes.z * lineMask(gl_FragCoord.y + cos(t + uv.x * 8.0) * uEdge * 3.0, 68.0 - uEdge * 30.0, 1.2);
   vec3 chroma = mix(vec3(0.92, 0.98, 1.0), vec3(0.46 + temporal * 0.12, 0.92, 0.88), uModes.y);
-  float alpha = min(0.145, uIntensity * uQuality * (0.022 + uJitter * 0.014));
-  alpha *= 0.18 + compression * uFrequency + (edgeX + edgeY) * uEdge * 0.35 + grain * uJitter * 0.16;
+  float alpha = min(0.12, 0.018 + uIntensity * uQuality * 0.12);
+  alpha *= 0.42 + compression * uFrequency * 1.4 + (edgeX + edgeY) * uEdge * 0.45 + grain * uJitter * 0.28;
   outColor = vec4(chroma, alpha);
 }`;
 
@@ -293,11 +293,11 @@ void main(){
       this.frame = 0;
       this.animationId = 0;
       this.lastStatsPublishedAt = -Infinity;
-      this.stats = { fps: 60, frameMs: 16.7, droppedFrames: 0, recommendedMode: 'canvas2d', renderer: 'auto', qualityScale: 1, perturbationStrength: settings.intensity, ocrResistance: 38 };
+      this.stats = { fps: 60, frameMs: 16.7, droppedFrames: 0, recommendedMode: 'canvas2d', renderer: 'auto', qualityScale: 1, perturbationStrength: settings.intensity, ocrResistance: 54 };
       this.manager = new PerformanceManager();
       this.canvas = document.createElement('canvas');
       this.canvas.id = 'optishield-overlay';
-      Object.assign(this.canvas.style, { position: 'fixed', inset: '0', pointerEvents: 'none', zIndex: '2147483647', mixBlendMode: settings.highContrastCompatible ? 'soft-light' : 'overlay' });
+      Object.assign(this.canvas.style, { position: 'fixed', inset: '0', pointerEvents: 'none', zIndex: '2147483647', mixBlendMode: settings.highContrastCompatible ? 'normal' : 'overlay', opacity: '1', boxShadow: 'inset 0 0 0 1px rgba(94,234,212,.18)' });
       this.debugPanel = document.createElement('div');
       this.debugPanel.id = 'optishield-debug-panel';
       Object.assign(this.debugPanel.style, { position: 'fixed', right: '12px', bottom: '12px', zIndex: '2147483647', padding: '8px 10px', borderRadius: '10px', background: 'rgba(2,6,23,.82)', color: '#dbeafe', font: '12px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace', pointerEvents: 'none', boxShadow: '0 8px 28px rgba(0,0,0,.28)' });
@@ -329,7 +329,7 @@ void main(){
     update(settings) {
       const previousMode = this.settings.mode;
       this.settings = settings;
-      this.canvas.style.mixBlendMode = settings.highContrastCompatible ? 'soft-light' : 'overlay';
+      this.canvas.style.mixBlendMode = settings.highContrastCompatible ? 'normal' : 'overlay';
       if (previousMode !== settings.mode || (settings.mode === 'auto' && this.stats.recommendedMode !== this.renderer.kind)) {
         this.renderer.dispose();
         this.renderer = this.createRenderer(settings.mode === 'auto' ? this.stats.recommendedMode : settings.mode);

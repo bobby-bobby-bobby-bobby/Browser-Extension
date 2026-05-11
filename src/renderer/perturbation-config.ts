@@ -18,11 +18,11 @@ export function frameConfig(settings: PerturbationSettings, frame: number, time:
   const base = (settings.intensity / 100) * eyeStrainScale * qualityScale;
   const temporalPhase = settings.adaptiveTemporalPhaseShifting ? Math.sin(frame * 0.73 + time * 0.0021) : 0;
   return {
-    alpha: Math.min(0.18, base * 0.22),
+    alpha: Math.min(0.16, 0.035 + base * 0.24),
     jitterPx: base * (settings.jitter / 100) * 0.9 * motionScale * dyslexiaScale,
     edgePx: base * (settings.edgeInstability / 100) * 1.2 * motionScale,
-    chromaPx: settings.subpixelChromaDrift ? base * 0.55 * (1 + temporalPhase * 0.18) : 0,
-    frequencyAlpha: settings.compressionInterferencePatterns ? base * (settings.frequencyDisruption / 100) * 0.16 : 0,
+    chromaPx: settings.subpixelChromaDrift ? 0.35 + base * 0.95 * (1 + temporalPhase * 0.18) : 0,
+    frequencyAlpha: settings.compressionInterferencePatterns ? Math.min(0.10, 0.012 + base * (settings.frequencyDisruption / 100) * 0.22) : 0,
     temporalSeed: Math.sin(frame * 12.9898 + time * 0.001) * 43758.5453,
     temporalPhase,
     qualityScale

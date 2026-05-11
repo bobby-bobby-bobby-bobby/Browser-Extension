@@ -26,7 +26,9 @@ export class OptiShieldOverlay {
       inset: '0',
       pointerEvents: 'none',
       zIndex: '2147483647',
-      mixBlendMode: settings.highContrastCompatible ? 'soft-light' : 'overlay'
+      mixBlendMode: settings.highContrastCompatible ? 'normal' : 'overlay',
+      opacity: '1',
+      boxShadow: 'inset 0 0 0 1px rgba(94,234,212,.18)'
     });
     this.debugPanel = document.createElement('div');
     this.debugPanel.id = 'optishield-debug-panel';
@@ -71,7 +73,7 @@ export class OptiShieldOverlay {
   update(settings: PerturbationSettings): void {
     const previousMode = this.settings.mode;
     this.settings = settings;
-    this.canvas.style.mixBlendMode = settings.highContrastCompatible ? 'soft-light' : 'overlay';
+    this.canvas.style.mixBlendMode = settings.highContrastCompatible ? 'normal' : 'overlay';
     if (previousMode !== settings.mode || (settings.mode === 'auto' && this.stats.recommendedMode !== this.renderer.kind)) {
       this.renderer.dispose();
       this.renderer = this.createRenderer(settings.mode === 'auto' ? this.stats.recommendedMode : settings.mode);

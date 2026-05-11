@@ -57,3 +57,7 @@ Default settings are intentionally conservative. On weak systems, choose Canvas 
 ## Limitations
 
 Optical privacy is probabilistic and environment-dependent. Camera distance, lens quality, lighting, compression, display type, capture angle, and OCR model quality all affect results.
+
+### Visual activation check
+
+The effect only runs on normal web pages where Chrome allows content scripts; it will not appear on `chrome://` pages, the Chrome Web Store, or other restricted browser UI. On a normal site, the default profile now shows a subtle cyan/scanline perturbation plus a very faint viewport edge outline so you can confirm the overlay loaded. If you still see no change, open the popup and verify protection is **On**, the site is not in the per-site disable list, and the intensity slider is above zero.

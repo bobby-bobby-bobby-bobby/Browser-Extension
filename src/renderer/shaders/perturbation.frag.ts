@@ -23,8 +23,8 @@ void main(){
   float edgeX = uModes.z * lineMask(gl_FragCoord.x + sin(t + uv.y * 9.0) * uEdge * 3.0, 72.0 - uEdge * 34.0, 1.3);
   float edgeY = uModes.z * lineMask(gl_FragCoord.y + cos(t + uv.x * 8.0) * uEdge * 3.0, 68.0 - uEdge * 30.0, 1.2);
   vec3 chroma = mix(vec3(0.92, 0.98, 1.0), vec3(0.46 + temporal * 0.12, 0.92, 0.88), uModes.y);
-  float alpha = min(0.145, uIntensity * uQuality * (0.022 + uJitter * 0.014));
-  alpha *= 0.18 + compression * uFrequency + (edgeX + edgeY) * uEdge * 0.35 + grain * uJitter * 0.16;
+  float alpha = min(0.12, 0.018 + uIntensity * uQuality * 0.12);
+  alpha *= 0.42 + compression * uFrequency * 1.4 + (edgeX + edgeY) * uEdge * 0.45 + grain * uJitter * 0.28;
   outColor = vec4(chroma, alpha);
 }`;
 

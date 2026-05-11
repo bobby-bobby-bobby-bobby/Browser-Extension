@@ -3,11 +3,11 @@ import type { PerturbationSettings, PerformanceStats } from '../types/settings';
 export const DEFAULT_SETTINGS: PerturbationSettings = {
   enabled: true,
   mode: 'auto',
-  intensity: 32,
-  jitter: 26,
-  edgeInstability: 22,
-  ocrDisruption: 20,
-  frequencyDisruption: 18,
+  intensity: 50,
+  jitter: 40,
+  edgeInstability: 38,
+  ocrDisruption: 34,
+  frequencyDisruption: 32,
   adaptiveTemporalPhaseShifting: true,
   subpixelChromaDrift: true,
   edgeReconstructionPoisoning: true,
@@ -28,5 +28,5 @@ export const DEFAULT_STATS: PerformanceStats = {
   renderer: 'auto',
   qualityScale: 1,
   perturbationStrength: DEFAULT_SETTINGS.intensity,
-  ocrResistance: 38
+  ocrResistance: 54
 };

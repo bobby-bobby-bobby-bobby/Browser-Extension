@@ -60,7 +60,9 @@ for (const [label, root] of [['content.js', repoRoot], ['dist/content.js', distR
     'OPTISHIELD_STATS',
     "getContext('webgl2'",
     "getContext('2d'",
-    'Canvas fallback keeps protection active'
+    'Canvas fallback keeps protection active',
+    'rgba(94,234,212,.18)',
+    'intensity: 50'
   ]);
 }
 

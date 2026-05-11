@@ -1,6 +1,6 @@
 const KEY='optishield.settings';
-const DEFAULT_SETTINGS={enabled:true,mode:'auto',intensity:32,jitter:26,edgeInstability:22,ocrDisruption:20,frequencyDisruption:18,adaptiveTemporalPhaseShifting:true,subpixelChromaDrift:true,edgeReconstructionPoisoning:true,compressionInterferencePatterns:true,debugPanel:false,reducedMotion:false,lowEyeStrain:true,dyslexiaFriendly:false,highContrastCompatible:true,disabledSites:[]};
-const DEFAULT_STATS={fps:60,frameMs:16.7,droppedFrames:0,recommendedMode:'canvas2d',renderer:'auto',qualityScale:1,perturbationStrength:32,ocrResistance:38};
+const DEFAULT_SETTINGS={enabled:true,mode:'auto',intensity:50,jitter:40,edgeInstability:38,ocrDisruption:34,frequencyDisruption:32,adaptiveTemporalPhaseShifting:true,subpixelChromaDrift:true,edgeReconstructionPoisoning:true,compressionInterferencePatterns:true,debugPanel:false,reducedMotion:false,lowEyeStrain:true,dyslexiaFriendly:false,highContrastCompatible:true,disabledSites:[]};
+const DEFAULT_STATS={fps:60,frameMs:16.7,droppedFrames:0,recommendedMode:'canvas2d',renderer:'auto',qualityScale:1,perturbationStrength:50,ocrResistance:54};
 async function getSettings(){const r=await chrome.storage.local.get(KEY);return {...DEFAULT_SETTINGS,...(r[KEY]||{})};}
 async function setSettings(patch){const next={...(await getSettings()),...patch};await chrome.storage.local.set({[KEY]:next});return next;}
 function sendSettings(settings){chrome.runtime.sendMessage({type:'OPTISHIELD_SETTINGS_UPDATED',settings}).catch(()=>{});}
