@@ -32,7 +32,7 @@ export class OptiShieldOverlay {
     this.shadow.append(this.canvas, this.debugPanel);
     this.applyTopOverlayStyles();
     document.documentElement.append(this.root);
-    this.renderer = this.createRenderer(settings.mode === 'auto' ? this.stats.recommendedMode : settings.mode);
+    this.renderer = this.createRenderer(settings.mode === 'auto' ? 'canvas2d' : settings.mode);
     this.resizeObserver = new ResizeObserver(() => this.resize());
     this.resizeObserver.observe(document.documentElement);
     this.resize();

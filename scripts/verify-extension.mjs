@@ -2,6 +2,7 @@ import { readFile, stat } from 'node:fs/promises';
 
 const repoRoot = new URL('../', import.meta.url);
 const distRoot = new URL('../dist/', import.meta.url);
+const POPUP_VITE_SCRIPT_PATTERN = /src=["']\/?(assets\/popup-[^"']+\.js)["']/;
 
 async function mustExist(root, relativePath) {
   await stat(new URL(relativePath, root));
@@ -28,7 +29,7 @@ async function verifyManifestRoot(label, root) {
   const popupHtml = await readFile(new URL(manifest.action.default_popup, root), 'utf8');
   await verifyPageAssets(`${label}/${manifest.action.default_popup}`, root, popupHtml, {
     legacyMarkers: ['popup.css', 'popup.js'],
-    viteScriptPattern: /src=["']\/?(assets\/popup-[^"']+\.js)["']/,
+    viteScriptPattern: POPUP_VITE_SCRIPT_PATTERN,
     viteStylePattern: /href=["']\/?(assets\/[^"']+\.css)["']/
   });
 
@@ -83,7 +84,7 @@ for (const [label, root] of [['content.js', repoRoot], ['dist/content.js', distR
 }
 
 for (const [label, root, popupHtml] of [['popup.js', repoRoot, repoVerified.popupHtml], ['dist/popup bundle', distRoot, distVerified.popupHtml]]) {
-  const popupPath = popupHtml.includes('popup.js') ? 'popup.js' : extractViteScriptPath(popupHtml, /src=["']\/?(assets\/popup-[^"']+\.js)["']/);
+  const popupPath = popupHtml.includes('popup.js') ? 'popup.js' : extractViteScriptPath(popupHtml, POPUP_VITE_SCRIPT_PATTERN);
   const popup = await readFile(new URL(popupPath, root), 'utf8');
   assertContains(label, popup, [
     'chrome.runtime.sendMessage',
