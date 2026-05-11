@@ -18,6 +18,7 @@ export function useSettings() {
   const setSettings = async (patch: Partial<PerturbationSettings>) => {
     const next = await settingsStore.set(patch);
     setSettingsState(next);
+    return next;
   };
 
   return { settings, setSettings, ready };

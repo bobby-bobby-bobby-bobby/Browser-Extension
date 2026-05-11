@@ -5,8 +5,8 @@
   "description": "Optical Privacy for the Modern Web - a privacy-first browser extension that reduces optical capture readability.",
   "type": "module",
   "scripts": {
-    "dev": "vite --host 0.0.0.0",
-    "build": "tsc --noEmit && vite build",
+    "dev": "vite --host 0.0.0.0 --config vite.config.ts",
+    "build": "tsc --noEmit && node scripts/build-extension.mjs",
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
@@ -31,6 +31,7 @@
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint": "^9.13.0",
-    "prettier": "^3.3.3"
+    "prettier": "^3.3.3",
+    "esbuild": "^0.21.5"
   }
 }
