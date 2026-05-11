@@ -2,12 +2,22 @@ import type { PerturbationSettings, PerformanceStats } from '../types/settings';
 
 export const DEFAULT_SETTINGS: PerturbationSettings = {
   enabled: true,
-  mode: 'auto',
-  intensity: 32,
-  jitter: 26,
-  edgeInstability: 22,
-  ocrDisruption: 20,
-  frequencyDisruption: 18,
+  mode: 'canvas2d',
+  intensity: 50,
+  jitter: 40,
+  edgeInstability: 38,
+  ocrDisruption: 34,
+  frequencyDisruption: 32,
+  distortionStyle: 'organic',
+  warpAmplitude: 34,
+  warpSpeed: 26,
+  warpDensity: 30,
+  warpCurvature: 28,
+  adaptiveTemporalPhaseShifting: true,
+  subpixelChromaDrift: true,
+  edgeReconstructionPoisoning: true,
+  compressionInterferencePatterns: true,
+  debugPanel: false,
   reducedMotion: false,
   lowEyeStrain: true,
   dyslexiaFriendly: false,
@@ -20,5 +30,8 @@ export const DEFAULT_STATS: PerformanceStats = {
   frameMs: 16.7,
   droppedFrames: 0,
   recommendedMode: 'canvas2d',
-  renderer: 'auto'
+  renderer: 'canvas2d',
+  qualityScale: 1,
+  perturbationStrength: DEFAULT_SETTINGS.intensity,
+  ocrResistance: 54
 };

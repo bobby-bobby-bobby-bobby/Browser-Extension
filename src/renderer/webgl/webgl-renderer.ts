@@ -5,47 +5,65 @@ export class WebGLPerturbationRenderer {
   readonly kind = 'webgl' as const;
   private gl: WebGL2RenderingContext;
   private program: WebGLProgram;
+  private vao: WebGLVertexArrayObject | null;
   private uniforms: Record<string, WebGLUniformLocation>;
 
   constructor(private canvas: HTMLCanvasElement) {
-    const gl = canvas.getContext('webgl2', { alpha: true, antialias: false, powerPreference: 'low-power' });
+    const gl = canvas.getContext('webgl2', { alpha: true, antialias: false, powerPreference: 'low-power', preserveDrawingBuffer: false });
     if (!gl) throw new Error('WebGL2 is unavailable');
     this.gl = gl;
     this.program = this.createProgram(passThroughVertexShader, perturbationFragmentShader);
+    this.vao = gl.createVertexArray();
     this.uniforms = {
       uResolution: this.mustUniform('uResolution'),
       uTime: this.mustUniform('uTime'),
       uIntensity: this.mustUniform('uIntensity'),
       uJitter: this.mustUniform('uJitter'),
-      uFrequency: this.mustUniform('uFrequency')
+      uFrequency: this.mustUniform('uFrequency'),
+      uEdge: this.mustUniform('uEdge'),
+      uQuality: this.mustUniform('uQuality'),
+      uModes: this.mustUniform('uModes')
     };
   }
 
   resize(width: number, height: number): void {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    this.canvas.width = Math.floor(width * dpr);
-    this.canvas.height = Math.floor(height * dpr);
-    this.canvas.style.width = `${width}px`;
-    this.canvas.style.height = `${height}px`;
+    this.canvas.width = Math.max(1, Math.floor(width * dpr));
+    this.canvas.height = Math.max(1, Math.floor(height * dpr));
+    this.canvas.style.setProperty('width', `${width}px`, 'important');
+    this.canvas.style.setProperty('height', `${height}px`, 'important');
     this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
   }
 
-  render(settings: PerturbationSettings, time: number): void {
+  render(settings: PerturbationSettings, time: number, qualityScale = 1): void {
     const gl = this.gl;
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    if (gl.isContextLost()) return;
     gl.useProgram(this.program);
+    if (this.vao) gl.bindVertexArray(this.vao);
     gl.uniform2f(this.uniforms.uResolution, this.canvas.width, this.canvas.height);
     gl.uniform1f(this.uniforms.uTime, time);
-    gl.uniform1f(this.uniforms.uIntensity, settings.lowEyeStrain ? settings.intensity * 0.7 : settings.intensity);
-    gl.uniform1f(this.uniforms.uJitter, settings.reducedMotion ? settings.jitter * 0.002 : settings.jitter * 0.01);
+    gl.uniform1f(this.uniforms.uIntensity, (settings.lowEyeStrain ? settings.intensity * 0.7 : settings.intensity) * 0.01);
+    gl.uniform1f(this.uniforms.uJitter, settings.reducedMotion ? settings.jitter * 0.0008 : settings.jitter * 0.004);
     gl.uniform1f(this.uniforms.uFrequency, settings.frequencyDisruption * 0.01);
+    gl.uniform1f(this.uniforms.uEdge, settings.edgeInstability * 0.01);
+    gl.uniform1f(this.uniforms.uQuality, qualityScale);
+    gl.uniform4f(
+      this.uniforms.uModes,
+      settings.adaptiveTemporalPhaseShifting ? 1 : 0,
+      settings.subpixelChromaDrift ? 1 : 0,
+      settings.edgeReconstructionPoisoning ? 1 : 0,
+      settings.compressionInterferencePatterns ? 1 : 0
+    );
     gl.drawArrays(gl.TRIANGLES, 0, 3);
+    if (this.vao) gl.bindVertexArray(null);
   }
 
   dispose(): void {
+    if (this.vao) this.gl.deleteVertexArray(this.vao);
     this.gl.deleteProgram(this.program);
   }
 

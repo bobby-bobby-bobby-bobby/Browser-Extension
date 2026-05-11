@@ -30,12 +30,15 @@ OptiShield collects no telemetry, fingerprints no users, sends no browsing data 
 
 ## Quick start (no build needed)
 
-This repository includes a prebuilt extension in `dist/`.
+This repository is directly loadable after download/unzip: the root contains `manifest.json`, `popup.html`, `options.html`, `background.js`, `content.js`, and `icons/` in standard Chromium extension layout. A mirrored build also exists in `dist/`.
 
-1. Open `chrome://extensions`
-2. Enable **Developer mode**
-3. Click **Load unpacked**
-4. Select the repository's `dist/` folder
+1. Download/unzip or clone this repository
+2. Open `chrome://extensions`
+3. Enable **Developer mode**
+4. Click **Load unpacked**
+5. Select the repository root folder (`Browser-Extension/`)
+
+If you prefer generated output only, select `dist/` instead.
 
 ## Development
 
@@ -45,7 +48,7 @@ npm run dev
 npm run build
 ```
 
-Load `dist/` as an unpacked extension in a Chromium-based browser after building.
+After building, either load the repository root or `dist/` as an unpacked extension in a Chromium-based browser.
 
 ## Performance expectations
 
@@ -54,3 +57,7 @@ Default settings are intentionally conservative. On weak systems, choose Canvas 
 ## Limitations
 
 Optical privacy is probabilistic and environment-dependent. Camera distance, lens quality, lighting, compression, display type, capture angle, and OCR model quality all affect results.
+
+### Visual activation check
+
+The effect only runs on normal web pages where Chrome allows content scripts; it will not appear on `chrome://` pages, the Chrome Web Store, or other restricted browser UI. On a normal site, the default profile now shows a subtle cyan/scanline perturbation plus a very faint viewport edge outline so you can confirm the overlay loaded. If you still see no change, open the popup and verify protection is **On**, the site is not in the per-site disable list, and the intensity slider is above zero.
