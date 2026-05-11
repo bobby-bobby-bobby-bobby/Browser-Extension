@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "verify:extension": "node scripts/verify-extension.mjs"
   },
   "dependencies": {
     "@vitejs/plugin-react": "^4.3.4",
