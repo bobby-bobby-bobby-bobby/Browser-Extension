@@ -21,15 +21,7 @@ export class OptiShieldOverlay {
   constructor(private settings: PerturbationSettings, private onStats: (stats: PerformanceStats) => void) {
     this.canvas = document.createElement('canvas');
     this.canvas.id = 'optishield-overlay';
-    Object.assign(this.canvas.style, {
-      position: 'fixed',
-      inset: '0',
-      pointerEvents: 'none',
-      zIndex: '2147483647',
-      mixBlendMode: settings.highContrastCompatible ? 'normal' : 'overlay',
-      opacity: '1',
-      boxShadow: 'inset 0 0 0 1px rgba(94,234,212,.18)'
-    });
+    this.applyTopOverlayStyles();
     this.debugPanel = document.createElement('div');
     this.debugPanel.id = 'optishield-debug-panel';
     Object.assign(this.debugPanel.style, {
@@ -56,6 +48,7 @@ export class OptiShieldOverlay {
   start(): void {
     const tick = (now: number) => {
       this.frame += 1;
+      if (this.frame % 60 === 0) this.ensureTopmost();
       if (this.settings.enabled && this.manager.shouldRender(this.frame)) {
         this.renderer.render(this.settings, now, this.manager.currentQualityScale());
         this.stats = this.manager.sample(now, this.renderer.kind, this.settings);
@@ -73,7 +66,7 @@ export class OptiShieldOverlay {
   update(settings: PerturbationSettings): void {
     const previousMode = this.settings.mode;
     this.settings = settings;
-    this.canvas.style.mixBlendMode = settings.highContrastCompatible ? 'normal' : 'overlay';
+    this.applyTopOverlayStyles();
     if (previousMode !== settings.mode || (settings.mode === 'auto' && this.stats.recommendedMode !== this.renderer.kind)) {
       this.renderer.dispose();
       this.renderer = this.createRenderer(settings.mode === 'auto' ? this.stats.recommendedMode : settings.mode);
@@ -89,6 +82,31 @@ export class OptiShieldOverlay {
     this.renderer.dispose();
     this.canvas.remove();
     this.debugPanel.remove();
+  }
+
+
+  private applyTopOverlayStyles(): void {
+    const style = this.canvas.style;
+    style.setProperty('all', 'initial', 'important');
+    style.setProperty('position', 'fixed', 'important');
+    style.setProperty('inset', '0', 'important');
+    style.setProperty('width', '100vw', 'important');
+    style.setProperty('height', '100vh', 'important');
+    style.setProperty('pointer-events', 'none', 'important');
+    style.setProperty('z-index', '2147483647', 'important');
+    style.setProperty('display', 'block', 'important');
+    style.setProperty('visibility', 'visible', 'important');
+    style.setProperty('opacity', '1', 'important');
+    style.setProperty('mix-blend-mode', this.settings.highContrastCompatible ? 'normal' : 'overlay', 'important');
+    style.setProperty('box-shadow', 'inset 0 0 0 1px rgba(94,234,212,.18)', 'important');
+    style.setProperty('contain', 'strict', 'important');
+    style.setProperty('isolation', 'isolate', 'important');
+  }
+
+  private ensureTopmost(): void {
+    if (this.canvas.parentElement !== document.documentElement || this.canvas.nextElementSibling !== this.debugPanel) {
+      document.documentElement.append(this.canvas, this.debugPanel);
+    }
   }
 
   private resize(): void {
@@ -119,5 +137,6 @@ export class OptiShieldOverlay {
     replacement.setAttribute('style', this.canvas.getAttribute('style') ?? '');
     this.canvas.replaceWith(replacement);
     this.canvas = replacement;
+    this.applyTopOverlayStyles();
   }
 }

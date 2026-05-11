@@ -65,7 +65,9 @@ for (const [label, root] of [['content.js', repoRoot], ['dist/content.js', distR
     'intensity: 50',
     "mode: 'canvas2d'",
     'gl.isContextLost()',
-    'replaceCanvasForCanvasFallback'
+    'replaceCanvasForCanvasFallback',
+    "setProperty('z-index', '2147483647', 'important')",
+    'ensureTopmost'
   ]);
 }
 

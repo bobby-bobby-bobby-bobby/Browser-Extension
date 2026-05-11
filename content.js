@@ -127,8 +127,8 @@
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       this.canvas.width = Math.max(1, Math.floor(width * dpr));
       this.canvas.height = Math.max(1, Math.floor(height * dpr));
-      this.canvas.style.width = `${width}px`;
-      this.canvas.style.height = `${height}px`;
+      this.canvas.style.setProperty('width', `${width}px`, 'important');
+      this.canvas.style.setProperty('height', `${height}px`, 'important');
       this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
 
@@ -193,8 +193,8 @@
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       this.canvas.width = Math.max(1, Math.floor(width * dpr));
       this.canvas.height = Math.max(1, Math.floor(height * dpr));
-      this.canvas.style.width = `${width}px`;
-      this.canvas.style.height = `${height}px`;
+      this.canvas.style.setProperty('width', `${width}px`, 'important');
+      this.canvas.style.setProperty('height', `${height}px`, 'important');
       this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
     }
 
@@ -298,7 +298,7 @@ void main(){
       this.manager = new PerformanceManager();
       this.canvas = document.createElement('canvas');
       this.canvas.id = 'optishield-overlay';
-      Object.assign(this.canvas.style, { position: 'fixed', inset: '0', pointerEvents: 'none', zIndex: '2147483647', mixBlendMode: settings.highContrastCompatible ? 'normal' : 'overlay', opacity: '1', boxShadow: 'inset 0 0 0 1px rgba(94,234,212,.18)' });
+      this.applyTopOverlayStyles();
       this.debugPanel = document.createElement('div');
       this.debugPanel.id = 'optishield-debug-panel';
       Object.assign(this.debugPanel.style, { position: 'fixed', right: '12px', bottom: '12px', zIndex: '2147483647', padding: '8px 10px', borderRadius: '10px', background: 'rgba(2,6,23,.82)', color: '#dbeafe', font: '12px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace', pointerEvents: 'none', boxShadow: '0 8px 28px rgba(0,0,0,.28)' });
@@ -313,6 +313,7 @@ void main(){
     start() {
       const tick = (now) => {
         this.frame += 1;
+        if (this.frame % 60 === 0) this.ensureTopmost();
         if (this.settings.enabled && this.manager.shouldRender(this.frame)) {
           this.renderer.render(this.settings, now, this.manager.qualityScale);
           this.stats = this.manager.sample(now, this.renderer.kind, this.settings);
@@ -330,7 +331,7 @@ void main(){
     update(settings) {
       const previousMode = this.settings.mode;
       this.settings = settings;
-      this.canvas.style.mixBlendMode = settings.highContrastCompatible ? 'normal' : 'overlay';
+      this.applyTopOverlayStyles();
       if (previousMode !== settings.mode || (settings.mode === 'auto' && this.stats.recommendedMode !== this.renderer.kind)) {
         this.renderer.dispose();
         this.renderer = this.createRenderer(settings.mode === 'auto' ? this.stats.recommendedMode : settings.mode);
@@ -346,6 +347,31 @@ void main(){
       this.renderer.dispose();
       this.canvas.remove();
       this.debugPanel.remove();
+    }
+
+
+    applyTopOverlayStyles() {
+      const style = this.canvas.style;
+      style.setProperty('all', 'initial', 'important');
+      style.setProperty('position', 'fixed', 'important');
+      style.setProperty('inset', '0', 'important');
+      style.setProperty('width', '100vw', 'important');
+      style.setProperty('height', '100vh', 'important');
+      style.setProperty('pointer-events', 'none', 'important');
+      style.setProperty('z-index', '2147483647', 'important');
+      style.setProperty('display', 'block', 'important');
+      style.setProperty('visibility', 'visible', 'important');
+      style.setProperty('opacity', '1', 'important');
+      style.setProperty('mix-blend-mode', this.settings.highContrastCompatible ? 'normal' : 'overlay', 'important');
+      style.setProperty('box-shadow', 'inset 0 0 0 1px rgba(94,234,212,.18)', 'important');
+      style.setProperty('contain', 'strict', 'important');
+      style.setProperty('isolation', 'isolate', 'important');
+    }
+
+    ensureTopmost() {
+      if (this.canvas.parentElement !== document.documentElement || this.canvas.nextElementSibling !== this.debugPanel) {
+        document.documentElement.append(this.canvas, this.debugPanel);
+      }
     }
 
     resize() {
@@ -377,6 +403,7 @@ void main(){
       replacement.setAttribute('style', this.canvas.getAttribute('style') || '');
       this.canvas.replaceWith(replacement);
       this.canvas = replacement;
+      this.applyTopOverlayStyles();
     }
   }
 

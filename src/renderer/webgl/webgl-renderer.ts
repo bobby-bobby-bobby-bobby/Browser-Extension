@@ -30,8 +30,8 @@ export class WebGLPerturbationRenderer {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     this.canvas.width = Math.max(1, Math.floor(width * dpr));
     this.canvas.height = Math.max(1, Math.floor(height * dpr));
-    this.canvas.style.width = `${width}px`;
-    this.canvas.style.height = `${height}px`;
+    this.canvas.style.setProperty('width', `${width}px`, 'important');
+    this.canvas.style.setProperty('height', `${height}px`, 'important');
     this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
   }
 
