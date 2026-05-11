@@ -30,8 +30,8 @@ export class WebGLPerturbationRenderer {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     this.canvas.width = Math.max(1, Math.floor(width * dpr));
     this.canvas.height = Math.max(1, Math.floor(height * dpr));
-    this.canvas.style.width = `${width}px`;
-    this.canvas.style.height = `${height}px`;
+    this.canvas.style.setProperty('width', `${width}px`, 'important');
+    this.canvas.style.setProperty('height', `${height}px`, 'important');
     this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
   }
 
@@ -41,8 +41,9 @@ export class WebGLPerturbationRenderer {
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    if (gl.isContextLost()) return;
     gl.useProgram(this.program);
-    gl.bindVertexArray(this.vao);
+    if (this.vao) gl.bindVertexArray(this.vao);
     gl.uniform2f(this.uniforms.uResolution, this.canvas.width, this.canvas.height);
     gl.uniform1f(this.uniforms.uTime, time);
     gl.uniform1f(this.uniforms.uIntensity, (settings.lowEyeStrain ? settings.intensity * 0.7 : settings.intensity) * 0.01);
@@ -58,11 +59,11 @@ export class WebGLPerturbationRenderer {
       settings.compressionInterferencePatterns ? 1 : 0
     );
     gl.drawArrays(gl.TRIANGLES, 0, 3);
-    gl.bindVertexArray(null);
+    if (this.vao) gl.bindVertexArray(null);
   }
 
   dispose(): void {
-    this.gl.deleteVertexArray(this.vao);
+    if (this.vao) this.gl.deleteVertexArray(this.vao);
     this.gl.deleteProgram(this.program);
   }
 

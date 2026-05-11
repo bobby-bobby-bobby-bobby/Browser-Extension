@@ -43,7 +43,7 @@ settingsStore.get().then(apply).catch(() => undefined);
 settingsStore.subscribe((settings) => void apply(settings));
 
 observer = new MutationObserver(() => {
-  if (overlay && !document.getElementById('optishield-overlay')) {
+  if (overlay && !document.getElementById('optishield-root')) {
     overlay.dispose();
     overlay = undefined;
     void settingsStore.get().then(apply);

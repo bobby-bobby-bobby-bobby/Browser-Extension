@@ -2,7 +2,7 @@ import type { PerturbationSettings, PerformanceStats } from '../types/settings';
 
 export const DEFAULT_SETTINGS: PerturbationSettings = {
   enabled: true,
-  mode: 'auto',
+  mode: 'canvas2d',
   intensity: 50,
   jitter: 40,
   edgeInstability: 38,
@@ -25,7 +25,7 @@ export const DEFAULT_STATS: PerformanceStats = {
   frameMs: 16.7,
   droppedFrames: 0,
   recommendedMode: 'canvas2d',
-  renderer: 'auto',
+  renderer: 'canvas2d',
   qualityScale: 1,
   perturbationStrength: DEFAULT_SETTINGS.intensity,
   ocrResistance: 54
