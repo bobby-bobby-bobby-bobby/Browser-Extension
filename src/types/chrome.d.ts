@@ -1,6 +1,6 @@
 declare namespace chrome {
   namespace runtime {
-    interface MessageSender {}
+    interface MessageSender { tab?: tabs.Tab; id?: string; url?: string; }
     const onInstalled: { addListener(callback: () => void): void };
     const onMessage: {
       addListener(callback: (message: any, sender: MessageSender, sendResponse: (response?: any) => void) => void | boolean): void;
@@ -8,6 +8,12 @@ declare namespace chrome {
     };
     function sendMessage(message: any): Promise<any>;
     function openOptionsPage(): Promise<void>;
+    const lastError: { message?: string } | undefined;
+  }
+  namespace tabs {
+    interface Tab { id?: number; active?: boolean; currentWindow?: boolean; }
+    function query(queryInfo: { active?: boolean; currentWindow?: boolean }): Promise<Tab[]>;
+    function sendMessage(tabId: number, message: any): Promise<any>;
   }
   namespace storage {
     interface StorageChange { oldValue?: any; newValue?: any; }

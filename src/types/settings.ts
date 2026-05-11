@@ -8,6 +8,11 @@ export interface PerturbationSettings {
   edgeInstability: number;
   ocrDisruption: number;
   frequencyDisruption: number;
+  adaptiveTemporalPhaseShifting: boolean;
+  subpixelChromaDrift: boolean;
+  edgeReconstructionPoisoning: boolean;
+  compressionInterferencePatterns: boolean;
+  debugPanel: boolean;
   reducedMotion: boolean;
   lowEyeStrain: boolean;
   dyslexiaFriendly: boolean;
@@ -21,9 +26,18 @@ export interface PerformanceStats {
   droppedFrames: number;
   recommendedMode: RenderingMode;
   renderer: RenderingMode;
+  qualityScale: number;
+  perturbationStrength: number;
+  ocrResistance: number;
 }
 
 export interface RuntimeState {
   settings: PerturbationSettings;
   stats: PerformanceStats;
 }
+
+export type OptiShieldMessage =
+  | { type: 'OPTISHIELD_SETTINGS_UPDATED'; settings: PerturbationSettings }
+  | { type: 'OPTISHIELD_GET_SETTINGS' }
+  | { type: 'OPTISHIELD_GET_STATS' }
+  | { type: 'OPTISHIELD_STATS'; stats: PerformanceStats };

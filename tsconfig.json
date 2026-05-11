@@ -20,10 +20,7 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "ignoreDeprecations": "5.0",
-    "types": [
-      "node"
-    ]
+    "ignoreDeprecations": "5.0"
   },
   "include": [
     "src",
