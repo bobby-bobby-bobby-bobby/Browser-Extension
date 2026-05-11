@@ -29,6 +29,14 @@ function SettingsApp() {
         <Slider label="Frequency disruption" value={settings.frequencyDisruption} onChange={(frequencyDisruption) => void setSettings({ frequencyDisruption })} />
       </section>
       <section className="card grid">
+        <h2>Adaptive protection modes</h2>
+        <label className="check"><input type="checkbox" checked={settings.adaptiveTemporalPhaseShifting} onChange={(e) => void setSettings({ adaptiveTemporalPhaseShifting: e.target.checked })} /> Adaptive temporal phase shifting</label>
+        <label className="check"><input type="checkbox" checked={settings.subpixelChromaDrift} onChange={(e) => void setSettings({ subpixelChromaDrift: e.target.checked })} /> Subpixel chroma drift</label>
+        <label className="check"><input type="checkbox" checked={settings.edgeReconstructionPoisoning} onChange={(e) => void setSettings({ edgeReconstructionPoisoning: e.target.checked })} /> Edge reconstruction poisoning</label>
+        <label className="check"><input type="checkbox" checked={settings.compressionInterferencePatterns} onChange={(e) => void setSettings({ compressionInterferencePatterns: e.target.checked })} /> Compression interference patterns</label>
+        <label className="check"><input type="checkbox" checked={settings.debugPanel} onChange={(e) => void setSettings({ debugPanel: e.target.checked })} /> Local developer diagnostics panel</label>
+      </section>
+      <section className="card grid">
         <h2>Per-site disable list</h2>
         <textarea rows={6} value={disabledText} placeholder="example.com" onChange={(event) => void setSettings({ disabledSites: event.target.value.split('\n').map((v) => v.trim().toLowerCase()).filter(Boolean) })} />
       </section>

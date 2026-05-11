@@ -13,8 +13,10 @@ export class OptiShieldOverlay {
   private animationId = 0;
   private stats: PerformanceStats = PerformanceManager.defaultStats();
   private manager = new PerformanceManager();
+  private frame = 0;
   private lastStatsPublishedAt = -Infinity;
   private resizeObserver: ResizeObserver;
+  private debugPanel: HTMLDivElement;
 
   constructor(private settings: PerturbationSettings, private onStats: (stats: PerformanceStats) => void) {
     this.canvas = document.createElement('canvas');
@@ -26,18 +28,36 @@ export class OptiShieldOverlay {
       zIndex: '2147483647',
       mixBlendMode: settings.highContrastCompatible ? 'soft-light' : 'overlay'
     });
-    document.documentElement.appendChild(this.canvas);
+    this.debugPanel = document.createElement('div');
+    this.debugPanel.id = 'optishield-debug-panel';
+    Object.assign(this.debugPanel.style, {
+      position: 'fixed',
+      right: '12px',
+      bottom: '12px',
+      zIndex: '2147483647',
+      padding: '8px 10px',
+      borderRadius: '10px',
+      background: 'rgba(2,6,23,.82)',
+      color: '#dbeafe',
+      font: '12px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace',
+      pointerEvents: 'none',
+      boxShadow: '0 8px 28px rgba(0,0,0,.28)'
+    });
+    document.documentElement.append(this.canvas, this.debugPanel);
     this.renderer = this.createRenderer(settings.mode);
     this.resizeObserver = new ResizeObserver(() => this.resize());
     this.resizeObserver.observe(document.documentElement);
     this.resize();
+    this.syncDebugPanel();
   }
 
   start(): void {
     const tick = (now: number) => {
-      if (this.settings.enabled && this.manager.shouldRender()) {
-        this.renderer.render(this.settings, now);
-        this.stats = this.manager.sample(now, this.renderer.kind);
+      this.frame += 1;
+      if (this.settings.enabled && this.manager.shouldRender(this.frame)) {
+        this.renderer.render(this.settings, now, this.manager.currentQualityScale());
+        this.stats = this.manager.sample(now, this.renderer.kind, this.settings);
+        this.syncDebugPanel();
         if (now - this.lastStatsPublishedAt >= STATS_PUBLISH_INTERVAL_MS) {
           this.lastStatsPublishedAt = now;
           this.onStats(this.stats);
@@ -57,6 +77,7 @@ export class OptiShieldOverlay {
       this.renderer = this.createRenderer(settings.mode === 'auto' ? this.stats.recommendedMode : settings.mode);
       this.resize();
     }
+    this.syncDebugPanel();
   }
 
   dispose(): void {
@@ -65,10 +86,17 @@ export class OptiShieldOverlay {
     this.manager.dispose();
     this.renderer.dispose();
     this.canvas.remove();
+    this.debugPanel.remove();
   }
 
   private resize(): void {
     this.renderer.resize(window.innerWidth, window.innerHeight);
+  }
+
+  private syncDebugPanel(): void {
+    this.debugPanel.hidden = !this.settings.debugPanel;
+    if (this.debugPanel.hidden) return;
+    this.debugPanel.textContent = `OptiShield | ${this.stats.renderer} | ${this.stats.fps} FPS | ${this.stats.frameMs} ms | quality ${Math.round(this.stats.qualityScale * 100)}% | strength ${this.stats.perturbationStrength}% | OCR resistance ${this.stats.ocrResistance}%`;
   }
 
   private createRenderer(mode: RenderingMode): Renderer {
