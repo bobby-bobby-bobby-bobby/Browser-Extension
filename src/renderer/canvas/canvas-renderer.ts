@@ -1,5 +1,5 @@
 import type { PerturbationSettings } from '../../types/settings';
-import { frameConfig } from '../perturbation-config';
+import { frameConfig, layeredWarp } from '../perturbation-config';
 
 export class CanvasPerturbationRenderer {
   readonly kind = 'canvas2d' as const;
@@ -36,7 +36,8 @@ export class CanvasPerturbationRenderer {
     if (settings.compressionInterferencePatterns) {
       const spacing = Math.max(9, 24 - settings.frequencyDisruption * 0.13);
       for (let y = (Math.abs(config.temporalSeed) % spacing) - spacing; y < height; y += spacing) {
-        const offset = Math.sin(y * 0.073 + time * 0.0017 + config.temporalPhase) * config.jitterPx;
+        const warp = layeredWarp(0, y, time, config);
+        const offset = Math.sin(y * 0.073 + time * 0.0017 + config.temporalPhase) * config.jitterPx + warp;
         this.ctx.fillStyle = `rgba(255,255,255,${config.frequencyAlpha})`;
         this.ctx.fillRect(offset, y, width, 1);
         this.ctx.fillStyle = `rgba(2,8,23,${config.frequencyAlpha * 0.75})`;
@@ -48,12 +49,12 @@ export class CanvasPerturbationRenderer {
       const block = Math.max(36, 86 - settings.ocrDisruption * 0.36);
       this.ctx.fillStyle = `rgba(15,23,42,${config.alpha * 0.38})`;
       for (let x = -block; x < width + block; x += block) {
-        const phase = Math.sin(x * 0.031 + time * 0.0011) * config.edgePx;
+        const phase = Math.sin(x * 0.031 + time * 0.0011) * config.edgePx + layeredWarp(x, 0, time, config) * 0.55;
         this.ctx.fillRect(x + phase, 0, 1, height);
       }
       this.ctx.fillStyle = `rgba(248,250,252,${config.alpha * 0.30})`;
       for (let y = -block; y < height + block; y += block) {
-        const phase = Math.cos(y * 0.027 + time * 0.0013) * config.edgePx;
+        const phase = Math.cos(y * 0.027 + time * 0.0013) * config.edgePx + layeredWarp(0, y, time, config) * 0.55;
         this.ctx.fillRect(0, y + phase, width, 1);
       }
     }
@@ -61,9 +62,9 @@ export class CanvasPerturbationRenderer {
     if (settings.subpixelChromaDrift) {
       this.ctx.globalAlpha = config.alpha;
       this.ctx.fillStyle = 'rgba(94,234,212,0.55)';
-      this.ctx.fillRect(config.chromaPx, 0, width, height);
+      this.ctx.fillRect(config.chromaPx + layeredWarp(width * 0.33, height * 0.5, time, config) * 0.28, 0, width, height);
       this.ctx.fillStyle = 'rgba(129,140,248,0.42)';
-      this.ctx.fillRect(-config.chromaPx, 0, width, height);
+      this.ctx.fillRect(-config.chromaPx + layeredWarp(width * 0.66, height * 0.5, time + 1700, config) * 0.28, 0, width, height);
       this.ctx.globalAlpha = 1;
     }
   }

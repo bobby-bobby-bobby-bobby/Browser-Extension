@@ -50,6 +50,11 @@ function Popup() {
         <Slider label="Edge instability" value={settings.edgeInstability} onChange={(edgeInstability) => void updateSettings({ edgeInstability })} />
         <Slider label="OCR disruption" value={settings.ocrDisruption} onChange={(ocrDisruption) => void updateSettings({ ocrDisruption })} />
         <Slider label="Frequency disruption" value={settings.frequencyDisruption} onChange={(frequencyDisruption) => void updateSettings({ frequencyDisruption })} />
+        <label className="control"><span>Distortion style</span><select value={settings.distortionStyle} onChange={(e) => void updateSettings({ distortionStyle: e.target.value as typeof settings.distortionStyle })}><option value="linear">Linear</option><option value="organic">Organic</option><option value="adaptive">Adaptive</option><option value="cameraHardened">Camera-hardened</option></select></label>
+        <Slider label="Noise warp amplitude" value={settings.warpAmplitude} onChange={(warpAmplitude) => void updateSettings({ warpAmplitude })} help="Organic 1-3px line curvature; lower if you notice motion." />
+        <Slider label="Noise warp speed" value={settings.warpSpeed} onChange={(warpSpeed) => void updateSettings({ warpSpeed })} />
+        <Slider label="Noise warp density" value={settings.warpDensity} onChange={(warpDensity) => void updateSettings({ warpDensity })} />
+        <Slider label="Noise warp curvature" value={settings.warpCurvature} onChange={(warpCurvature) => void updateSettings({ warpCurvature })} />
       </section>
       <section className="card grid">
         <label className="check"><input type="checkbox" checked={settings.adaptiveTemporalPhaseShifting} onChange={(e) => void updateSettings({ adaptiveTemporalPhaseShifting: e.target.checked })} /> Adaptive temporal phase shifting</label>

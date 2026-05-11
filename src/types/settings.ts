@@ -1,4 +1,5 @@
 export type RenderingMode = 'canvas2d' | 'webgl' | 'auto';
+export type DistortionStyle = 'linear' | 'organic' | 'adaptive' | 'cameraHardened';
 
 export interface PerturbationSettings {
   enabled: boolean;
@@ -8,6 +9,11 @@ export interface PerturbationSettings {
   edgeInstability: number;
   ocrDisruption: number;
   frequencyDisruption: number;
+  distortionStyle: DistortionStyle;
+  warpAmplitude: number;
+  warpSpeed: number;
+  warpDensity: number;
+  warpCurvature: number;
   adaptiveTemporalPhaseShifting: boolean;
   subpixelChromaDrift: boolean;
   edgeReconstructionPoisoning: boolean;

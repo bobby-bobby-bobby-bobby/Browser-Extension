@@ -7,10 +7,15 @@ chrome.runtime.onInstalled.addListener(() => {
   // Keep first-run behavior quiet: the popup and options page are available from chrome://extensions.
 });
 
-async function sendToActiveTab(message: OptiShieldMessage): Promise<void> {
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  if (tab?.id === undefined) return;
-  await chrome.tabs.sendMessage(tab.id, message).catch(() => undefined);
+async function sendToActiveTab(message: OptiShieldMessage): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (tab?.id === undefined) return { ok: false, error: 'No active tab found' };
+    await chrome.tabs.sendMessage(tab.id, message).catch(() => undefined);
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : String(error) };
+  }
 }
 
 chrome.runtime.onMessage.addListener((message: OptiShieldMessage, _sender, sendResponse) => {
@@ -26,7 +31,7 @@ chrome.runtime.onMessage.addListener((message: OptiShieldMessage, _sender, sendR
   }
 
   if (message.type === 'OPTISHIELD_SETTINGS_UPDATED') {
-    void sendToActiveTab(message).then(() => sendResponse({ ok: true }));
+    void sendToActiveTab(message).then(sendResponse);
     return true;
   }
 

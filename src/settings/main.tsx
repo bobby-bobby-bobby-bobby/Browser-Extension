@@ -27,6 +27,11 @@ function SettingsApp() {
         <Slider label="Edge instability" value={settings.edgeInstability} onChange={(edgeInstability) => void setSettings({ edgeInstability })} />
         <Slider label="OCR disruption" value={settings.ocrDisruption} onChange={(ocrDisruption) => void setSettings({ ocrDisruption })} />
         <Slider label="Frequency disruption" value={settings.frequencyDisruption} onChange={(frequencyDisruption) => void setSettings({ frequencyDisruption })} />
+        <label className="control"><span>Distortion style</span><select value={settings.distortionStyle} onChange={(e) => void setSettings({ distortionStyle: e.target.value as typeof settings.distortionStyle })}><option value="linear">Linear</option><option value="organic">Organic</option><option value="adaptive">Adaptive</option><option value="cameraHardened">Camera-hardened</option></select></label>
+        <Slider label="Noise warp amplitude" value={settings.warpAmplitude} onChange={(warpAmplitude) => void setSettings({ warpAmplitude })} />
+        <Slider label="Noise warp speed" value={settings.warpSpeed} onChange={(warpSpeed) => void setSettings({ warpSpeed })} />
+        <Slider label="Noise warp density" value={settings.warpDensity} onChange={(warpDensity) => void setSettings({ warpDensity })} />
+        <Slider label="Noise warp curvature" value={settings.warpCurvature} onChange={(warpCurvature) => void setSettings({ warpCurvature })} />
       </section>
       <section className="card grid">
         <h2>Adaptive protection modes</h2>
