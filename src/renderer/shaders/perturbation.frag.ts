@@ -29,16 +29,17 @@ void main(){
   float slow = valueNoise(uv * vec2(5.0, 3.4) + vec2(t * 0.07, -t * 0.043));
   float micro = valueNoise(uv * vec2(29.0, 23.0) + vec2(-t * 0.31, t * 0.27));
   float curved = valueNoise(uv * vec2(11.0, 8.0) + vec2(slow * 0.45, micro * 0.32 + t * 0.055));
-  float warp = ((slow - 0.5) * 1.35 + (micro - 0.5) * 0.32 + (curved - 0.5) * 0.42) * uJitter * uQuality;
+  float warp = ((slow - 0.5) * 1.55 + (micro - 0.5) * 0.46 + (curved - 0.5) * 0.58) * uJitter * uQuality;
   float temporal = uModes.x * (slow * 0.68 + micro * 0.32);
   float grain = hash(floor((gl_FragCoord.xy + temporal * 3.0) / 3.0) + floor(t * 17.0));
-  float scan = sin(((uv.y + warp * 0.004) * uResolution.y * (0.58 + uFrequency * 0.34)) + t * 7.1 + warp);
-  float compression = uModes.w * smoothstep(0.92, 1.0, abs(scan)) * (0.4 + grain * 0.6);
-  float edgeX = uModes.z * lineMask(gl_FragCoord.x + warp * 2.6 + sin(t + uv.y * 9.0) * uEdge * 3.0, 72.0 - uEdge * 34.0, 1.3);
-  float edgeY = uModes.z * lineMask(gl_FragCoord.y + warp * 1.9 + cos(t + uv.x * 8.0) * uEdge * 3.0, 68.0 - uEdge * 30.0, 1.2);
-  vec3 chroma = mix(vec3(0.92, 0.98, 1.0), vec3(0.46 + temporal * 0.12 + warp * 0.012, 0.92, 0.88 - warp * 0.009), uModes.y);
-  float alpha = min(0.12, 0.018 + uIntensity * uQuality * 0.12);
-  alpha *= 0.42 + compression * uFrequency * 1.4 + (edgeX + edgeY) * uEdge * 0.45 + grain * uJitter * 0.28;
+  float scan = sin(((uv.y + warp * 0.0055) * uResolution.y * (0.58 + uFrequency * 0.42)) + t * 7.1 + warp * 1.35);
+  float compression = uModes.w * smoothstep(0.88, 1.0, abs(scan)) * (0.5 + grain * 0.7);
+  float edgeX = uModes.z * lineMask(gl_FragCoord.x + warp * 3.6 + sin(t + uv.y * 9.0) * uEdge * 4.2, 72.0 - uEdge * 34.0, 1.65);
+  float edgeY = uModes.z * lineMask(gl_FragCoord.y + warp * 2.8 + cos(t + uv.x * 8.0) * uEdge * 4.0, 68.0 - uEdge * 30.0, 1.55);
+  float veil = 0.24 + slow * 0.10 + micro * 0.06;
+  vec3 chroma = mix(vec3(0.78, 0.95, 1.0), vec3(0.38 + temporal * 0.18 + warp * 0.018, 0.95, 0.88 - warp * 0.012), uModes.y);
+  float alpha = min(0.19, 0.035 + uIntensity * uQuality * 0.17);
+  alpha *= veil + compression * uFrequency * 1.8 + (edgeX + edgeY) * uEdge * 0.62 + grain * uJitter * 0.34;
   outColor = vec4(chroma, alpha);
 }`;
 

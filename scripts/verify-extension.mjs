@@ -72,7 +72,10 @@ for (const [label, root] of [['content.js', repoRoot], ['dist/content.js', distR
     'ensureTopmost',
     'valueNoise2D',
     'layeredWarp',
-    'distortionStyle'
+    'distortionStyle',
+    'float veil =',
+    '0.19',
+    '* 0.014'
   ]);
 }
 

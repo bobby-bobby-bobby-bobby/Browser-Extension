@@ -46,10 +46,10 @@ export class WebGLPerturbationRenderer {
     if (this.vao) gl.bindVertexArray(this.vao);
     gl.uniform2f(this.uniforms.uResolution, this.canvas.width, this.canvas.height);
     gl.uniform1f(this.uniforms.uTime, time);
-    gl.uniform1f(this.uniforms.uIntensity, (settings.lowEyeStrain ? settings.intensity * 0.7 : settings.intensity) * 0.01);
-    gl.uniform1f(this.uniforms.uJitter, settings.reducedMotion ? settings.jitter * 0.0008 : settings.jitter * 0.004);
-    gl.uniform1f(this.uniforms.uFrequency, settings.frequencyDisruption * 0.01);
-    gl.uniform1f(this.uniforms.uEdge, settings.edgeInstability * 0.01);
+    gl.uniform1f(this.uniforms.uIntensity, (settings.lowEyeStrain ? settings.intensity * 0.82 : settings.intensity) * 0.014);
+    gl.uniform1f(this.uniforms.uJitter, settings.reducedMotion ? settings.jitter * 0.0014 : settings.jitter * 0.0075);
+    gl.uniform1f(this.uniforms.uFrequency, settings.frequencyDisruption * 0.014);
+    gl.uniform1f(this.uniforms.uEdge, settings.edgeInstability * 0.014);
     gl.uniform1f(this.uniforms.uQuality, qualityScale);
     gl.uniform4f(
       this.uniforms.uModes,
