@@ -8,6 +8,8 @@ const STATS_PUBLISH_HZ = 3;
 const STATS_PUBLISH_INTERVAL_MS = Math.floor(1000 / STATS_PUBLISH_HZ);
 
 export class OptiShieldOverlay {
+  private root: HTMLElement;
+  private shadow: ShadowRoot;
   private canvas: HTMLCanvasElement;
   private renderer: Renderer;
   private animationId = 0;
@@ -19,25 +21,16 @@ export class OptiShieldOverlay {
   private debugPanel: HTMLDivElement;
 
   constructor(private settings: PerturbationSettings, private onStats: (stats: PerformanceStats) => void) {
+    this.root = document.createElement('optishield-root');
+    this.root.id = 'optishield-root';
+    this.shadow = this.root.attachShadow({ mode: 'open' });
     this.canvas = document.createElement('canvas');
     this.canvas.id = 'optishield-overlay';
-    this.applyTopOverlayStyles();
     this.debugPanel = document.createElement('div');
     this.debugPanel.id = 'optishield-debug-panel';
-    Object.assign(this.debugPanel.style, {
-      position: 'fixed',
-      right: '12px',
-      bottom: '12px',
-      zIndex: '2147483647',
-      padding: '8px 10px',
-      borderRadius: '10px',
-      background: 'rgba(2,6,23,.82)',
-      color: '#dbeafe',
-      font: '12px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace',
-      pointerEvents: 'none',
-      boxShadow: '0 8px 28px rgba(0,0,0,.28)'
-    });
-    document.documentElement.append(this.canvas, this.debugPanel);
+    this.shadow.append(this.canvas, this.debugPanel);
+    this.applyTopOverlayStyles();
+    document.documentElement.append(this.root);
     this.renderer = this.createRenderer(settings.mode);
     this.resizeObserver = new ResizeObserver(() => this.resize());
     this.resizeObserver.observe(document.documentElement);
@@ -48,7 +41,7 @@ export class OptiShieldOverlay {
   start(): void {
     const tick = (now: number) => {
       this.frame += 1;
-      if (this.frame % 60 === 0) this.ensureTopmost();
+      if (this.frame % 30 === 0) this.ensureTopmost();
       if (this.settings.enabled && this.manager.shouldRender(this.frame)) {
         this.renderer.render(this.settings, now, this.manager.currentQualityScale());
         this.stats = this.manager.sample(now, this.renderer.kind, this.settings);
@@ -80,32 +73,61 @@ export class OptiShieldOverlay {
     this.resizeObserver.disconnect();
     this.manager.dispose();
     this.renderer.dispose();
-    this.canvas.remove();
-    this.debugPanel.remove();
+    this.root.remove();
   }
 
-
   private applyTopOverlayStyles(): void {
-    const style = this.canvas.style;
+    const rootStyle = this.root.style;
+    rootStyle.setProperty('all', 'initial', 'important');
+    rootStyle.setProperty('position', 'fixed', 'important');
+    rootStyle.setProperty('inset', '0', 'important');
+    rootStyle.setProperty('width', '100vw', 'important');
+    rootStyle.setProperty('height', '100vh', 'important');
+    rootStyle.setProperty('pointer-events', 'none', 'important');
+    rootStyle.setProperty('z-index', '2147483647', 'important');
+    rootStyle.setProperty('display', 'block', 'important');
+    rootStyle.setProperty('visibility', 'visible', 'important');
+    rootStyle.setProperty('opacity', '1', 'important');
+    rootStyle.setProperty('contain', 'strict', 'important');
+    rootStyle.setProperty('isolation', 'isolate', 'important');
+
+    const canvasStyle = this.canvas.style;
+    canvasStyle.setProperty('all', 'initial', 'important');
+    canvasStyle.setProperty('position', 'fixed', 'important');
+    canvasStyle.setProperty('inset', '0', 'important');
+    canvasStyle.setProperty('width', '100vw', 'important');
+    canvasStyle.setProperty('height', '100vh', 'important');
+    canvasStyle.setProperty('pointer-events', 'none', 'important');
+    canvasStyle.setProperty('z-index', '2147483647', 'important');
+    canvasStyle.setProperty('display', 'block', 'important');
+    canvasStyle.setProperty('visibility', 'visible', 'important');
+    canvasStyle.setProperty('opacity', '1', 'important');
+    canvasStyle.setProperty('mix-blend-mode', this.settings.highContrastCompatible ? 'normal' : 'overlay', 'important');
+    canvasStyle.setProperty('box-shadow', 'inset 0 0 0 1px rgba(94,234,212,.18)', 'important');
+    canvasStyle.setProperty('contain', 'strict', 'important');
+  }
+
+  private applyDebugPanelStyles(): void {
+    const style = this.debugPanel.style;
     style.setProperty('all', 'initial', 'important');
     style.setProperty('position', 'fixed', 'important');
-    style.setProperty('inset', '0', 'important');
-    style.setProperty('width', '100vw', 'important');
-    style.setProperty('height', '100vh', 'important');
-    style.setProperty('pointer-events', 'none', 'important');
+    style.setProperty('right', '12px', 'important');
+    style.setProperty('bottom', '12px', 'important');
     style.setProperty('z-index', '2147483647', 'important');
-    style.setProperty('display', 'block', 'important');
-    style.setProperty('visibility', 'visible', 'important');
-    style.setProperty('opacity', '1', 'important');
-    style.setProperty('mix-blend-mode', this.settings.highContrastCompatible ? 'normal' : 'overlay', 'important');
-    style.setProperty('box-shadow', 'inset 0 0 0 1px rgba(94,234,212,.18)', 'important');
-    style.setProperty('contain', 'strict', 'important');
-    style.setProperty('isolation', 'isolate', 'important');
+    style.setProperty('padding', '8px 10px', 'important');
+    style.setProperty('border-radius', '10px', 'important');
+    style.setProperty('background', 'rgba(2,6,23,.82)', 'important');
+    style.setProperty('color', '#dbeafe', 'important');
+    style.setProperty('font', '12px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace', 'important');
+    style.setProperty('pointer-events', 'none', 'important');
+    style.setProperty('box-shadow', '0 8px 28px rgba(0,0,0,.28)', 'important');
   }
 
   private ensureTopmost(): void {
-    if (this.canvas.parentElement !== document.documentElement || this.canvas.nextElementSibling !== this.debugPanel) {
-      document.documentElement.append(this.canvas, this.debugPanel);
+    if (this.root.parentElement !== document.documentElement) {
+      document.documentElement.append(this.root);
+    } else if (document.documentElement.lastElementChild !== this.root) {
+      document.documentElement.append(this.root);
     }
   }
 
@@ -114,6 +136,7 @@ export class OptiShieldOverlay {
   }
 
   private syncDebugPanel(): void {
+    this.applyDebugPanelStyles();
     this.debugPanel.hidden = !this.settings.debugPanel;
     if (this.debugPanel.hidden) return;
     this.debugPanel.textContent = `OptiShield | ${this.stats.renderer} | ${this.stats.fps} FPS | ${this.stats.frameMs} ms | quality ${Math.round(this.stats.qualityScale * 100)}% | strength ${this.stats.perturbationStrength}% | OCR resistance ${this.stats.ocrResistance}%`;
@@ -134,9 +157,9 @@ export class OptiShieldOverlay {
   private replaceCanvasForCanvasFallback(): void {
     const replacement = document.createElement('canvas');
     replacement.id = this.canvas.id;
-    replacement.setAttribute('style', this.canvas.getAttribute('style') ?? '');
     this.canvas.replaceWith(replacement);
     this.canvas = replacement;
+    this.shadow.prepend(this.canvas);
     this.applyTopOverlayStyles();
   }
 }

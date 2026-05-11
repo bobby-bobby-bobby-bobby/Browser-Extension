@@ -52,6 +52,8 @@ assertContains('src/content/content.ts', sourceContent, [
 for (const [label, root] of [['content.js', repoRoot], ['dist/content.js', distRoot]]) {
   const builtContent = await readFile(new URL('content.js', root), 'utf8');
   assertContains(label, builtContent, [
+    'optishield-root',
+    'attachShadow',
     'optishield-overlay',
     'requestAnimationFrame',
     'chrome.storage.onChanged',
