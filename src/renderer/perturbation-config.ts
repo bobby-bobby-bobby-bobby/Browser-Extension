@@ -56,7 +56,11 @@ function smoothstep(t: number): number {
 }
 
 function hash2(x: number, y: number): number {
-  return Math.sin(x * 127.1 + y * 311.7) * 43758.5453123 % 1;
+  return fract(Math.sin(x * 127.1 + y * 311.7) * 43758.5453123);
+}
+
+function fract(value: number): number {
+  return value - Math.floor(value);
 }
 
 export function valueNoise2D(x: number, y: number): number {

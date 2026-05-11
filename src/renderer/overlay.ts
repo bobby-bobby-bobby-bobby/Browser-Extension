@@ -19,6 +19,7 @@ export class OptiShieldOverlay {
   private lastStatsPublishedAt = -Infinity;
   private resizeObserver: ResizeObserver;
   private debugPanel: HTMLDivElement;
+  private debugPanelStylesApplied = false;
 
   constructor(private settings: PerturbationSettings, private onStats: (stats: PerformanceStats) => void) {
     this.root = document.createElement('optishield-root');
@@ -31,7 +32,7 @@ export class OptiShieldOverlay {
     this.shadow.append(this.canvas, this.debugPanel);
     this.applyTopOverlayStyles();
     document.documentElement.append(this.root);
-    this.renderer = this.createRenderer(settings.mode);
+    this.renderer = this.createRenderer(settings.mode === 'auto' ? this.stats.recommendedMode : settings.mode);
     this.resizeObserver = new ResizeObserver(() => this.resize());
     this.resizeObserver.observe(document.documentElement);
     this.resize();
@@ -45,6 +46,7 @@ export class OptiShieldOverlay {
       if (this.settings.enabled && this.manager.shouldRender(this.frame)) {
         this.renderer.render(this.settings, now, this.manager.currentQualityScale());
         this.stats = this.manager.sample(now, this.renderer.kind, this.settings);
+        this.maybeSwitchAutoRenderer();
         this.syncDebugPanel();
         if (now - this.lastStatsPublishedAt >= STATS_PUBLISH_INTERVAL_MS) {
           this.lastStatsPublishedAt = now;
@@ -136,10 +138,20 @@ export class OptiShieldOverlay {
   }
 
   private syncDebugPanel(): void {
-    this.applyDebugPanelStyles();
     this.debugPanel.hidden = !this.settings.debugPanel;
     if (this.debugPanel.hidden) return;
+    if (!this.debugPanelStylesApplied) {
+      this.applyDebugPanelStyles();
+      this.debugPanelStylesApplied = true;
+    }
     this.debugPanel.textContent = `OptiShield | ${this.stats.renderer} | ${this.stats.fps} FPS | ${this.stats.frameMs} ms | quality ${Math.round(this.stats.qualityScale * 100)}% | strength ${this.stats.perturbationStrength}% | OCR resistance ${this.stats.ocrResistance}%`;
+  }
+
+  private maybeSwitchAutoRenderer(): void {
+    if (this.settings.mode !== 'auto' || this.stats.recommendedMode === this.renderer.kind) return;
+    this.renderer.dispose();
+    this.renderer = this.createRenderer(this.stats.recommendedMode);
+    this.resize();
   }
 
   private createRenderer(mode: RenderingMode): Renderer {
